@@ -43,7 +43,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-     'rest_framework',
+    'rest_framework',
+    'accounts',
+    'products',
+    'carts',
+    'orders',
+    'payments',
+
 ]
 
 MIDDLEWARE = [
@@ -142,3 +148,4 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
+AUTH_USER_MODEL = 'accounts.User'
