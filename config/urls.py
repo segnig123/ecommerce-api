@@ -22,4 +22,5 @@ urlpatterns = [
 
     # DRF browsable API authentication
     path('api-auth/', include('rest_framework.urls')),
+    path('api/accounts/', include('accounts.urls')),
 ]
