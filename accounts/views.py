@@ -1,11 +1,12 @@
 from django.shortcuts import render
 
 # Create your views here.
-from rest_framework.generics import CreateAPIView,RetrieveAPIView
+from rest_framework.generics import CreateAPIView,RetrieveAPIView, GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import RegisterSerializer, UserProfileSerializer, ChangePasswordSerializer
 
-from .serializers import RegisterSerializer
-from .serializers import UserProfileSerializer
 
 
 class RegisterView(CreateAPIView):
@@ -20,3 +21,21 @@ class UserProfileView(RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+class ChangePasswordView(GenericAPIView):
+
+    serializer_class = ChangePasswordSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+
+        serializer = self.get_serializer(data=request.data)
+
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+
+        return Response(
+            {"message": "Password changed successfully."},
+            status=status.HTTP_200_OK
+        )
