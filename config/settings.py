@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'orders',
     'payments',
     'drf_spectacular',
+    'django_filters',
 
 ]
 
