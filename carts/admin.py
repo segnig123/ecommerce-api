@@ -1,3 +1,22 @@
 from django.contrib import admin
+from .models import Cart, CartItem
 
-# Register your models here.
+
+class CartItemInline(admin.TabularInline):
+    model = CartItem
+    extra = 0
+
+
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "created_at", "updated_at")
+    search_fields = ("user__email", "user__username")
+    list_filter = ("created_at",)
+    inlines = [CartItemInline]
+
+
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    list_display = ("id", "cart", "product", "quantity", "created_at")
+    search_fields = ("product__name", "cart__user__email")
+    list_filter = ("created_at",)
