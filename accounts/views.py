@@ -22,36 +22,34 @@ from .serializers import (
     ChangePasswordSerializer
 )
 
+from .docs import (
+    register_docs,
+    user_profile_docs,
+    change_password_docs,
+    user_list_docs,
+)
+
 
 User = get_user_model()
 
 
+@register_docs
 class RegisterView(CreateAPIView):
-    """Register a new customer account."""
 
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
 
-    @extend_schema(
-        summary="Register a new user",
-        description="Create a customer account using username, email and password.",
-        tags=["Accounts"]
-    )
+   
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
 
 
+@user_profile_docs
 class UserProfileView(RetrieveAPIView):
-    """Retrieve the profile of the authenticated user."""
 
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
 
-    @extend_schema(
-        summary="Retrieve user profile",
-        description="Returns the profile of the currently authenticated user.",
-        tags=["Accounts"]
-    )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
@@ -59,18 +57,12 @@ class UserProfileView(RetrieveAPIView):
         return self.request.user
 
 
+@change_password_docs
 class ChangePasswordView(GenericAPIView):
-    """Allow authenticated users to change their passwords."""
 
     serializer_class = ChangePasswordSerializer
     permission_classes = [IsAuthenticated]
 
-    @extend_schema(
-        summary="Change password",
-        description="Change the authenticated user's password after verifying the current password.",
-        tags=["Accounts"],
-        responses={200: None}
-    )
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
 
@@ -84,17 +76,13 @@ class ChangePasswordView(GenericAPIView):
         )
 
 
+@user_list_docs
 class UserListView(ListAPIView):
-    """Allow staff users to retrieve the user list."""
 
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
     permission_classes = [IsAdminUser]
 
-    @extend_schema(
-        summary="List all users",
-        description="Retrieve all registered users. Staff access required.",
-        tags=["Accounts"]
-    )
+    
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
