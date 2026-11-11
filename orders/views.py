@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.generics import UpdateAPIView
+from rest_framework.generics import UpdateAPIView,ListAPIView, RetrieveAPIView
 
 from carts.models import CartItem
 from products.models import Product
@@ -12,7 +12,19 @@ from products.models import Product
 from .models import Order, OrderItem
 from .serializers import CheckoutSerializer, OrderSerializer, OrderStatusUpdateSerializer
 
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
 
+from drf_spectacular.utils import extend_schema_view
+
+from .docs import (
+    checkout_docs,
+    OrderListDocs,
+    OrderDetailDocs,
+    order_status_update_docs,
+)
+
+@checkout_docs
 class CheckoutView(APIView):
     """Create an order from the authenticated user's shopping cart."""
 
@@ -122,18 +134,34 @@ class CheckoutView(APIView):
             status=status.HTTP_201_CREATED
         )
 
-from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework.permissions import IsAuthenticated
 
-from .models import Order
-from .serializers import OrderSerializer
-
-
+@extend_schema_view(
+    get=OrderListDocs.get
+)
 class OrderListView(ListAPIView):
     """Return the authenticated user's order history."""
 
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
+
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
+    filterset_fields = ["status"]
+
+    search_fields = ["order_number"]
+
+    ordering_fields = [
+        "created_at",
+        "updated_at",
+        "total_amount",
+        "status",
+    ]
+
+    ordering = ["-created_at"]
 
     def get_queryset(self):
         return (
@@ -143,6 +171,9 @@ class OrderListView(ListAPIView):
         )
 
 
+@extend_schema_view(
+    get=OrderDetailDocs.get
+)
 class OrderDetailView(RetrieveAPIView):
     """Retrieve details of an order belonging to the authenticated user."""
 
@@ -156,6 +187,7 @@ class OrderDetailView(RetrieveAPIView):
             .prefetch_related("items")
         )
 
+@order_status_update_docs
 class OrderStatusUpdateView(UpdateAPIView):
     """Allow administrators to update an order's status."""
 
