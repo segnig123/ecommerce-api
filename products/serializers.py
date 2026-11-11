@@ -3,6 +3,7 @@ from .models import Category, Product
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """Serialize category data for API requests and responses."""
 
     class Meta:
         model = Category
@@ -11,6 +12,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    """Serialize product data and validate price and category activation rules."""
 
     class Meta:
         model = Product
@@ -18,15 +20,16 @@ class ProductSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "updated_at"]
 
     def validate_price(self, value):
+        """Ensure the product price is greater than zero."""
 
         if value <= 0:
             raise serializers.ValidationError(
-                "Product price must be greater than zero."
             )
 
         return value
 
     def validate(self, attrs):
+        """Prevent activating a product if its category is inactive."""
 
         category = attrs.get(
             "category",
