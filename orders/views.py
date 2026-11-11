@@ -19,8 +19,8 @@ from drf_spectacular.utils import extend_schema_view
 
 from .docs import (
     checkout_docs,
-    OrderListDocs,
-    OrderDetailDocs,
+    order_list_docs,
+    order_detail_docs,
     order_status_update_docs,
 )
 
@@ -135,9 +135,7 @@ class CheckoutView(APIView):
         )
 
 
-@extend_schema_view(
-    get=OrderListDocs.get
-)
+@order_list_docs
 class OrderListView(ListAPIView):
     """Return the authenticated user's order history."""
 
@@ -170,10 +168,7 @@ class OrderListView(ListAPIView):
             .prefetch_related("items")
         )
 
-
-@extend_schema_view(
-    get=OrderDetailDocs.get
-)
+@order_detail_docs
 class OrderDetailView(RetrieveAPIView):
     """Retrieve details of an order belonging to the authenticated user."""
 

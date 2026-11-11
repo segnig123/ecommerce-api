@@ -49,9 +49,23 @@ class CheckoutSerializer(serializers.Serializer):
     shipping_address = serializers.CharField()
     shipping_phone = serializers.CharField(max_length=20)
 
+
 class OrderStatusUpdateSerializer(serializers.ModelSerializer):
     """Allow administrators to update an order's status."""
+
+    status = serializers.ChoiceField(
+        choices=Order.Status.choices,
+        required=True,
+    )
 
     class Meta:
         model = Order
         fields = ["status"]
+
+    def validate(self, attrs):
+        if "status" not in attrs:
+            raise serializers.ValidationError({
+                "status": "This field is required."
+            })
+
+        return attrs
