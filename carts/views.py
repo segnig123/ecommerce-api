@@ -15,7 +15,14 @@ from .serializers import (
     UpdateCartItemSerializer,
 )
 
+from .docs import (
+    cart_detail_docs,
+    add_to_cart_docs,
+    cart_item_detail_docs,
+    clear_cart_docs,
+)
 
+@cart_detail_docs
 class CartDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -35,6 +42,7 @@ class CartDetailView(APIView):
         return Response(serializer.data)
 
 
+@add_to_cart_docs
 class AddToCartView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -92,6 +100,7 @@ class AddToCartView(APIView):
         )
 
 
+@cart_item_detail_docs
 class CartItemDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -139,6 +148,7 @@ class CartItemDetailView(APIView):
         )
 
 
+@clear_cart_docs
 class ClearCartView(APIView):
     permission_classes = [IsAuthenticated]
 
