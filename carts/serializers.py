@@ -63,3 +63,11 @@ class CartSerializer(serializers.ModelSerializer):
             total += item.product.price * item.quantity
 
         return total
+
+class AddToCartSerializer(serializers.Serializer):
+    product_id = serializers.IntegerField()
+    quantity = serializers.IntegerField(min_value=1)
+
+
+class UpdateCartItemSerializer(serializers.Serializer):
+    quantity = serializers.IntegerField(min_value=1)
