@@ -48,3 +48,10 @@ class CheckoutSerializer(serializers.Serializer):
 
     shipping_address = serializers.CharField()
     shipping_phone = serializers.CharField(max_length=20)
+
+class OrderStatusUpdateSerializer(serializers.ModelSerializer):
+    """Allow administrators to update an order's status."""
+
+    class Meta:
+        model = Order
+        fields = ["status"]
