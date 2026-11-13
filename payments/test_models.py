@@ -4,6 +4,7 @@ from django.db import IntegrityError, transaction
 from django.test import TestCase
 
 from orders.models import Order
+from .models import StripeEvent
 from payments.models import Payment
 from django.contrib.auth import get_user_model
 
@@ -115,4 +116,50 @@ class PaymentModelTest(TestCase):
                     order=self.order,
                     amount=Decimal("150.00"),
                     stripe_payment_intent_id="pi_test_123"
+                )
+
+class StripeEventModelTest(TestCase):
+    """Test Stripe webhook event model behavior."""
+
+    def test_create_stripe_event(self):
+        """Test that a Stripe event can be created."""
+
+        event = StripeEvent.objects.create(
+            event_id="evt_test_123",
+            event_type="checkout.session.completed",
+        )
+
+        self.assertEqual(event.event_id, "evt_test_123")
+        self.assertEqual(
+            event.event_type,
+            "checkout.session.completed",
+        )
+        self.assertIsNotNone(event.created_at)
+
+    def test_stripe_event_string_representation(self):
+        """Test the string representation of a Stripe event."""
+
+        event = StripeEvent.objects.create(
+            event_id="evt_test_456",
+            event_type="payment_intent.payment_failed",
+        )
+
+        self.assertEqual(
+            str(event),
+            "payment_intent.payment_failed - evt_test_456",
+        )
+
+    def test_event_id_must_be_unique(self):
+        """Test that duplicate Stripe event IDs are rejected."""
+
+        StripeEvent.objects.create(
+            event_id="evt_duplicate",
+            event_type="checkout.session.completed",
+        )
+
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                StripeEvent.objects.create(
+                    event_id="evt_duplicate",
+                    event_type="checkout.session.expired",
                 )

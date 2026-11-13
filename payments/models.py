@@ -70,3 +70,16 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment #{self.pk} - {self.status}"
+
+class StripeEvent(models.Model):
+    """Store Stripe webhook events to prevent duplicate processing."""
+
+    event_id = models.CharField(max_length=255, unique=True)
+    event_type = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.event_type} - {self.event_id}"

@@ -157,3 +157,22 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = 'accounts.User'
+
+import os
+from dotenv import load_dotenv
+
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
+
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+
+STRIPE_SUCCESS_URL = os.environ.get(
+    "STRIPE_SUCCESS_URL",
+    "http://localhost:3000/payment/success?session_id={CHECKOUT_SESSION_ID}"
+)
+
+STRIPE_CANCEL_URL = os.environ.get(
+    "STRIPE_CANCEL_URL",
+    "http://localhost:3000/payment/cancelled"
+)
+
+load_dotenv(BASE_DIR / ".env")
