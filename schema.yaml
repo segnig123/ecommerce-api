@@ -1,0 +1,1608 @@
+openapi: 3.0.3
+info:
+  title: E-Commerce API
+  version: 1.0.0
+  description: E-Commerce REST API documentation
+paths:
+  /api/accounts/change-password/:
+    post:
+      operationId: accounts_change_password_create
+      description: Change the authenticated user's password after verifying the current
+        password.
+      summary: Change password
+      tags:
+      - Accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePassword'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChangePassword'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChangePassword'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: Password changed successfully.
+        '400':
+          description: Invalid current password or password data.
+        '401':
+          description: Authentication credentials were not provided.
+  /api/accounts/profile/:
+    get:
+      operationId: accounts_profile_retrieve
+      description: Returns the profile of the currently authenticated user.
+      summary: Retrieve user profile
+      tags:
+      - Accounts
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+        '401':
+          description: Authentication credentials were not provided.
+  /api/accounts/register/:
+    post:
+      operationId: accounts_register_create
+      description: Create a customer account using username, email, and password.
+      summary: Register a new user
+      tags:
+      - Accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Register'
+          description: ''
+        '400':
+          description: Invalid registration data.
+  /api/accounts/token/:
+    post:
+      operationId: accounts_token_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/accounts/token/refresh/:
+    post:
+      operationId: accounts_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/accounts/users/:
+    get:
+      operationId: accounts_users_list
+      description: Retrieve all registered users. Staff access is required.
+      summary: List all users
+      tags:
+      - Accounts
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserProfile'
+          description: ''
+        '403':
+          description: Staff permissions are required.
+  /api/cart/:
+    get:
+      operationId: cart_retrieve
+      description: Retrieve the authenticated user's shopping cart, including cart
+        items and calculated totals.
+      summary: Retrieve shopping cart
+      tags:
+      - Carts
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+          description: ''
+  /api/cart/clear/:
+    delete:
+      operationId: cart_clear_destroy
+      description: Remove all items from the authenticated user's shopping cart.
+      summary: Clear shopping cart
+      tags:
+      - Carts
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: Cart cleared successfully.
+        '204':
+          description: Cart does not exist or is already empty.
+  /api/cart/items/:
+    post:
+      operationId: cart_items_create
+      description: Add a product to the authenticated user's cart. If the product
+        already exists, its quantity is increased. Available stock is validated.
+      summary: Add product to cart
+      tags:
+      - Carts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddToCart'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AddToCart'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AddToCart'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+          description: ''
+        '400':
+          description: Invalid data or insufficient stock.
+        '404':
+          description: Product not found or inactive.
+  /api/cart/items/{id}/:
+    patch:
+      operationId: cart_items_partial_update
+      description: Update the quantity of an existing cart item belonging to the authenticated
+        user.
+      summary: Update cart item quantity
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Carts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateCartItem'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateCartItem'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateCartItem'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+          description: ''
+        '400':
+          description: Invalid quantity or insufficient stock.
+        '404':
+          description: Cart item not found.
+    delete:
+      operationId: cart_items_destroy
+      description: Remove an individual item from the authenticated user's cart.
+      summary: Remove cart item
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Carts
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+          description: ''
+        '404':
+          description: Cart item not found.
+  /api/categories/:
+    get:
+      operationId: categories_list
+      description: Retrieve a paginated list of product categories. Supports filtering,
+        searching, and ordering.
+      summary: List categories
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+        description: Filter categories by active status.
+      - in: query
+        name: ordering
+        schema:
+          type: string
+        description: Order categories by name, created_at, or updated_at. Use - for
+          descending order.
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page number for pagination.
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Search categories by name or description.
+      tags:
+      - Categories
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCategoryList'
+          description: ''
+    post:
+      operationId: categories_create
+      description: Create a new product category. Staff permissions are required.
+      summary: Create category
+      tags:
+      - Categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Category'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Category'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+        '400':
+          description: Invalid category data.
+        '403':
+          description: Staff permissions are required.
+  /api/categories/{id}/:
+    get:
+      operationId: categories_retrieve
+      description: Retrieve details of a specific category.
+      summary: Retrieve category
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Categories
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+        '404':
+          description: Category not found.
+    put:
+      operationId: categories_update
+      description: Completely update an existing category. Staff permissions are required.
+      summary: Update category
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Category'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Category'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+        '400':
+          description: Invalid category data.
+        '403':
+          description: Staff permissions are required.
+        '404':
+          description: Category not found.
+    patch:
+      operationId: categories_partial_update
+      description: Update selected fields of an existing category. Staff permissions
+        are required.
+      summary: Partially update category
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+        '400':
+          description: Invalid category data.
+        '403':
+          description: Staff permissions are required.
+        '404':
+          description: Category not found.
+    delete:
+      operationId: categories_destroy
+      description: Delete an existing category. Deletion is prevented if products
+        still reference it.
+      summary: Delete category
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Categories
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: Category deleted successfully.
+        '403':
+          description: Staff permissions are required.
+        '404':
+          description: Category not found.
+        '500':
+          description: Category deletion may be blocked by protected product relationships.
+  /api/orders/:
+    get:
+      operationId: orders_list
+      description: Retrieve the authenticated user's order history. Supports filtering,
+        searching, and ordering.
+      summary: List customer orders
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+          description: ''
+  /api/orders/{id}/:
+    get:
+      operationId: orders_retrieve
+      description: Retrieve details of an order belonging to the authenticated user.
+      summary: Retrieve order details
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+        '404':
+          description: Order not found.
+  /api/orders/{id}/status/:
+    put:
+      operationId: orders_status_update
+      description: Update an order's status. Admin access required.
+      summary: Update order status
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderStatusUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrderStatusUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrderStatusUpdate'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderStatusUpdate'
+          description: ''
+        '400':
+          description: Invalid order status.
+        '403':
+          description: Permission denied.
+        '404':
+          description: Order not found.
+    patch:
+      operationId: orders_status_partial_update
+      description: Update an order's status. Admin access required.
+      summary: Update order status
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedOrderStatusUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedOrderStatusUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedOrderStatusUpdate'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderStatusUpdate'
+          description: ''
+        '400':
+          description: Invalid order status.
+        '403':
+          description: Permission denied.
+        '404':
+          description: Order not found.
+  /api/orders/checkout/:
+    post:
+      operationId: orders_checkout_create
+      description: Create an order using the authenticated user's shopping cart.
+      summary: Checkout
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Checkout'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Checkout'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Checkout'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+        '400':
+          description: Invalid checkout or insufficient stock.
+  /api/payments/:
+    post:
+      operationId: payments_create
+      description: Create a Stripe Checkout Session for an order.
+      tags:
+      - payments
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/payments/webhook/:
+    post:
+      operationId: payments_webhook_create
+      description: Verify Stripe events and process each event only once.
+      tags:
+      - payments
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/products/:
+    get:
+      operationId: products_list
+      description: Retrieve a paginated list of products. Supports filtering, searching,
+        and ordering.
+      summary: List products
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: integer
+        description: Filter products by category ID.
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+        description: Filter products by active status.
+      - in: query
+        name: ordering
+        schema:
+          type: string
+        description: Order results by name, price, created_at, or updated_at. Use
+          - before a field for descending order.
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page number for pagination.
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: price
+        schema:
+          type: number
+          format: double
+        description: Filter products by exact price.
+      - in: query
+        name: price__gte
+        schema:
+          type: number
+          format: double
+        description: Filter products with a minimum price.
+      - in: query
+        name: price__lte
+        schema:
+          type: number
+          format: double
+        description: Filter products with a maximum price.
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Search by product name, description, SKU, or category name.
+      tags:
+      - Products
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProductList'
+          description: ''
+    post:
+      operationId: products_create
+      description: Create a new product. Staff permissions are required.
+      summary: Create product
+      tags:
+      - Products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Product'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+        '400':
+          description: Invalid product data.
+        '401':
+          description: Authentication credentials were not provided.
+        '403':
+          description: Staff permissions are required.
+  /api/products/{id}/:
+    get:
+      operationId: products_retrieve
+      description: Retrieve details of a specific product.
+      summary: Retrieve product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Products
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+        '404':
+          description: Product not found.
+    put:
+      operationId: products_update
+      description: Completely update an existing product. Staff permissions are required.
+      summary: Update product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Product'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+        '400':
+          description: Invalid product data.
+        '403':
+          description: Staff permissions are required.
+        '404':
+          description: Product not found.
+    patch:
+      operationId: products_partial_update
+      description: Update selected fields of an existing product. Staff permissions
+        are required.
+      summary: Partially update product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProduct'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProduct'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProduct'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+        '400':
+          description: Invalid product data.
+        '403':
+          description: Staff permissions are required.
+        '404':
+          description: Product not found.
+    delete:
+      operationId: products_destroy
+      description: Delete an existing product. Staff permissions are required.
+      summary: Delete product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Products
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: Product deleted successfully.
+        '403':
+          description: Staff permissions are required.
+        '404':
+          description: Product not found.
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - ht
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+components:
+  schemas:
+    AddToCart:
+      type: object
+      description: Validate product ID and quantity when adding a product to the cart.
+      properties:
+        product_id:
+          type: integer
+        quantity:
+          type: integer
+          minimum: 1
+      required:
+      - product_id
+      - quantity
+    Cart:
+      type: object
+      description: Serialize a shopping cart with its items and calculated total.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+          readOnly: true
+        total:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - items
+      - total
+      - updated_at
+      - user
+    CartItem:
+      type: object
+      description: Serialize cart items with product details and calculated subtotals.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product:
+          allOf:
+          - $ref: '#/components/schemas/Product'
+          readOnly: true
+        quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        subtotal:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - product
+      - quantity
+      - subtotal
+      - updated_at
+    Category:
+      type: object
+      description: Serialize category data for API requests and responses.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 225
+        slug:
+          type: string
+          maxLength: 225
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - slug
+      - updated_at
+    ChangePassword:
+      type: object
+      description: Validate and process authenticated users' password changes.
+      properties:
+        old_password:
+          type: string
+          writeOnly: true
+          description: User's current password.
+        new_password:
+          type: string
+          writeOnly: true
+          description: New password that must satisfy Django's password validators.
+      required:
+      - new_password
+      - old_password
+    Checkout:
+      type: object
+      description: Validate customer shipping information during checkout.
+      properties:
+        shipping_address:
+          type: string
+        shipping_phone:
+          type: string
+          maxLength: 20
+      required:
+      - shipping_address
+      - shipping_phone
+    Order:
+      type: object
+      description: Serialize an order with its associated items.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        order_number:
+          type: string
+          format: uuid
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        shipping_address:
+          type: string
+          readOnly: true
+        shipping_phone:
+          type: string
+          readOnly: true
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - items
+      - order_number
+      - shipping_address
+      - shipping_phone
+      - status
+      - total_amount
+      - updated_at
+      - user
+    OrderItem:
+      type: object
+      description: Serialize order items using their historical product information.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product:
+          type: integer
+          readOnly: true
+          nullable: true
+        product_name:
+          type: string
+          readOnly: true
+        unit_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        quantity:
+          type: integer
+          readOnly: true
+        subtotal:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - product
+      - product_name
+      - quantity
+      - subtotal
+      - unit_price
+    OrderStatusUpdate:
+      type: object
+      description: Allow administrators to update an order's status.
+      properties:
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+      required:
+      - status
+    PaginatedCategoryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+    PaginatedProductList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+    PatchedCategory:
+      type: object
+      description: Serialize category data for API requests and responses.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 225
+        slug:
+          type: string
+          maxLength: 225
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedOrderStatusUpdate:
+      type: object
+      description: Allow administrators to update an order's status.
+      properties:
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+    PatchedProduct:
+      type: object
+      description: Serialize product data and validate price and category activation
+        rules.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 225
+        slug:
+          type: string
+          maxLength: 225
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+        sku:
+          type: string
+          maxLength: 100
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        stock_quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        category:
+          type: integer
+    PatchedUpdateCartItem:
+      type: object
+      description: Validate the new quantity when updating an existing cart item.
+      properties:
+        quantity:
+          type: integer
+          minimum: 1
+    Product:
+      type: object
+      description: Serialize product data and validate price and category activation
+        rules.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 225
+        slug:
+          type: string
+          maxLength: 225
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+        sku:
+          type: string
+          maxLength: 100
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        stock_quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        category:
+          type: integer
+      required:
+      - category
+      - created_at
+      - id
+      - name
+      - price
+      - sku
+      - slug
+      - updated_at
+    Register:
+      type: object
+      description: Serializer for creating new customer accounts.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          description: Unique email address for the account.
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+          description: Password must contain at least 8 characters.
+          minLength: 8
+      required:
+      - email
+      - id
+      - password
+      - username
+    StatusEnum:
+      enum:
+      - pending
+      - confirmed
+      - processing
+      - shipped
+      - delivered
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `confirmed` - Confirmed
+        * `processing` - Processing
+        * `shipped` - Shipped
+        * `delivered` - Delivered
+        * `cancelled` - Cancelled
+    TokenObtainPair:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - password
+      - refresh
+      - username
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    UserProfile:
+      type: object
+      description: Serializer for displaying authenticated user profile information.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+        email:
+          type: string
+          format: email
+          readOnly: true
+          description: User's unique email address.
+        first_name:
+          type: string
+          readOnly: true
+        last_name:
+          type: string
+          readOnly: true
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - date_joined
+      - email
+      - first_name
+      - id
+      - last_name
+      - username
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

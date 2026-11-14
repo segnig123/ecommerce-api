@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 from pathlib import Path
 import environ
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -96,6 +97,7 @@ DATABASES = {
         'HOST': env('DB_HOST'),
         'PORT': env('DB_PORT'),
         'CONN_MAX_AGE': 60,
+        "CONN_HEALTH_CHECKS": True,
     }
 }
 
@@ -133,17 +135,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -156,23 +158,46 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
 AUTH_USER_MODEL = 'accounts.User'
 
-import os
-from dotenv import load_dotenv
 
-STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
+STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")
 
-STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
 
-STRIPE_SUCCESS_URL = os.environ.get(
+STRIPE_SUCCESS_URL = env(
     "STRIPE_SUCCESS_URL",
-    "http://localhost:3000/payment/success?session_id={CHECKOUT_SESSION_ID}"
+    default="http://localhost:3000/payment/success?session_id={CHECKOUT_SESSION_ID}",
 )
 
-STRIPE_CANCEL_URL = os.environ.get(
+STRIPE_CANCEL_URL = env(
     "STRIPE_CANCEL_URL",
-    "http://localhost:3000/payment/cancelled"
+    default="http://localhost:3000/payment/cancelled",
 )
 
-load_dotenv(BASE_DIR / ".env")
+# Production security settings
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+
+    X_FRAME_OPTIONS = "DENY"
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "E-Commerce API",
+    "DESCRIPTION": "E-Commerce REST API documentation",
+    "VERSION": "1.0.0",
+    "REDOC_DIST": "https://cdn.jsdelivr.net/npm/redoc@2.1.5",
+}
