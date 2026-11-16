@@ -57,6 +57,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -200,4 +201,11 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "E-Commerce REST API documentation",
     "VERSION": "1.0.0",
     "REDOC_DIST": "https://cdn.jsdelivr.net/npm/redoc@2.1.5",
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+    }
 }

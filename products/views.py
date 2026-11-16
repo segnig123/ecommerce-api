@@ -16,9 +16,13 @@ from .docs import (
     category_detail_docs,
 )
 
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+from django.core.cache import cache
 
 # PRODUCT VIEWS
 
+@method_decorator(cache_page(60 * 5), name="dispatch")
 @product_list_create_docs
 class ProductListCreateView(generics.ListCreateAPIView):
 
@@ -60,6 +64,10 @@ class ProductListCreateView(generics.ListCreateAPIView):
 
     pagination_class = ProductPagination
 
+    def perform_create(self, serializer):
+        serializer.save()
+        cache.clear()
+
 
 @product_detail_docs
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -69,6 +77,14 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     permission_classes = [IsAuthenticatedOrReadOnly, IsStaffOrReadOnly]
 
+    def perform_update(self, serializer):
+        serializer.save()
+        cache.clear()
+
+
+    def perform_destroy(self, instance):
+        instance.delete()
+        cache.clear()
 
 
 # CATEGORY VIEWS
