@@ -227,3 +227,12 @@ CELERY_TIMEZONE = "Africa/Addis_Ababa"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 DEFAULT_FROM_EMAIL = "noreply@ecommerce.com"
+
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    "count-pending-orders-every-minute": {
+        "task": "orders.tasks.count_pending_orders",
+        "schedule": 60.0,
+    },
+}

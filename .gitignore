@@ -38,3 +38,6 @@ dist/
 # Operating system
 .DS_Store
 Thumbs.db
+
+# Celery Beat schedule files
+celerybeat-schedule*

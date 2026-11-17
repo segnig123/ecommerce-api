@@ -2,7 +2,6 @@ from celery import shared_task
 from django.core.mail import send_mail
 
 from .models import Order
-
 import smtplib
 
 
@@ -62,3 +61,12 @@ Thank you for shopping with us!
     )
 
     return f"Confirmation email sent for order {order.order_number}"
+
+
+@shared_task
+def count_pending_orders():
+    count = Order.objects.filter(status="pending").count()
+
+    print(f"Currently there are {count} pending orders.")
+
+    return count

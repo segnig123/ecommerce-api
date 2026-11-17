@@ -39,5 +39,16 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+  celery-beat:
+    build: .
+    container_name: ecommerce_celery_beat
+    command: celery -A config beat --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env.docker
+    depends_on:
+      - redis
+      - db
 volumes:
   postgres_data:
