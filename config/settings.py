@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'payments',
     'drf_spectacular',
     'django_filters',
+    'rest_framework_simplejwt.token_blacklist',
 
 ]
 
@@ -157,11 +158,23 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '30/minute',
+        'user': '300/minute',
+    },
 }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
@@ -185,13 +198,13 @@ STRIPE_CANCEL_URL = env(
 # Production security settings
 
 if not DEBUG:
-    SECURE_SSL_REDIRECT = True
+    SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=True)
+    SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", default=True)
+    CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE", default=True)
 
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=0)
 
     SECURE_CONTENT_TYPE_NOSNIFF = True
-
     X_FRAME_OPTIONS = "DENY"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -203,25 +216,24 @@ SPECTACULAR_SETTINGS = {
     "REDOC_DIST": "https://cdn.jsdelivr.net/npm/redoc@2.1.5",
 }
 
+# Redis Cache
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://redis:6379/1",
+        "LOCATION": env("REDIS_CACHE_URL"),
     }
 }
 
-# Celery Configuration
-CELERY_BROKER_URL = "redis://redis:6379/0"
 
-CELERY_RESULT_BACKEND = "redis://redis:6379/1"
+# Celery Configuration
+CELERY_BROKER_URL = env("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
 
 CELERY_ACCEPT_CONTENT = ["json"]
-
 CELERY_TASK_SERIALIZER = "json"
-
 CELERY_RESULT_SERIALIZER = "json"
-
 CELERY_TIMEZONE = "Africa/Addis_Ababa"
+
 
 # Email Configuration
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

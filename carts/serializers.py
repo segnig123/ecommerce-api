@@ -31,7 +31,7 @@ class CartItemSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
-    def get_subtotal(self, obj):
+    def get_subtotal(self, obj) -> Decimal:
         """Calculate the subtotal using product price and quantity."""
         return obj.product.price * obj.quantity
 
@@ -62,7 +62,7 @@ class CartSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
-    def get_total(self, obj):
+    def get_total(self, obj) -> Decimal:
         """Calculate the total price of all items in the cart."""
         total = Decimal("0.00")
 

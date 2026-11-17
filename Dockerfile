@@ -1,25 +1,29 @@
 # Use Python 3.14 lightweight Linux image
 FROM python:3.14-slim
 
-# Prevent Python from generating .pyc files
+# Python settings
 ENV PYTHONDONTWRITEBYTECODE=1
-
-# Ensure Python output appears immediately
 ENV PYTHONUNBUFFERED=1
 
-# Set working directory
 WORKDIR /app
 
-# Install Python dependencies
+# Install dependencies
 COPY requirements.txt .
-
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application source code
-COPY . .
+# Create a non-root application user
+RUN groupadd --system appgroup && \
+    useradd --system --gid appgroup --create-home appuser
 
-# Expose Django application port
+# Switch to non-root user
+USER appuser
+
+# Copy application files with correct ownership
+COPY --chown=appuser:appgroup . .
+
+# Run application as non-root user
+USER appuser
+
 EXPOSE 8000
 
-# Start Django using Gunicorn
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]

@@ -19,9 +19,13 @@ from rest_framework.permissions import AllowAny
 
 from orders.models import Order
 
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema
+
 class PaymentCreateView(APIView):
     """Create a payment and generate a Stripe Checkout Session."""
 
+    serializer_class = PaymentSerializer
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -113,6 +117,10 @@ class StripeWebhookView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        request=OpenApiTypes.OBJECT,
+        responses={200: OpenApiTypes.OBJECT},
+    )
     def post(self, request):
         """Verify Stripe events and process each event only once."""
 

@@ -30,3 +30,20 @@ htmlcov
 # Generated files
 staticfiles/
 media/
+
+# Local databases
+*.sqlite3
+*.db
+
+# Celery
+celerybeat-schedule*
+
+# Certificates and private keys
+*.pem
+*.key
+*.p12
+*.pfx
+
+# OS files
+.DS_Store
+Thumbs.db

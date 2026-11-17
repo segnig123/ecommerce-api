@@ -24,6 +24,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
         if value <= 0:
             raise serializers.ValidationError(
+                "Product price must be greater than zero."
             )
 
         return value

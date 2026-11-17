@@ -3,7 +3,7 @@ import uuid
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
-
+from decimal import Decimal
 
 class Order(models.Model):
     """Represent a customer's order and its checkout information."""
@@ -49,6 +49,12 @@ class Order(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+        indexes = [
+            models.Index(
+                fields=["user", "-created_at"],
+                name="order_user_created_idx",
+            ),
+        ]
 
     def __str__(self):
         return f"Order {self.order_number} - {self.user}"
@@ -98,5 +104,5 @@ class OrderItem(models.Model):
         return f"{self.product_name} x {self.quantity}"
 
     @property
-    def subtotal(self):
+    def subtotal(self) -> Decimal:
         return self.unit_price * self.quantity
