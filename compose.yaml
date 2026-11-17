@@ -26,6 +26,18 @@ services:
   redis:
     image: redis:7-alpine
     container_name: ecommerce_redis
-    restart: unless-stopped
+    ports:
+      - "6379:6379"
+  celery:
+    build: .
+    container_name: ecommerce_celery
+    command: celery -A config worker --loglevel=info
+    env_file:
+      - .env.docker
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
 volumes:
   postgres_data:

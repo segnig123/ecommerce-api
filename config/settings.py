@@ -209,3 +209,21 @@ CACHES = {
         "LOCATION": "redis://redis:6379/1",
     }
 }
+
+# Celery Configuration
+CELERY_BROKER_URL = "redis://redis:6379/0"
+
+CELERY_RESULT_BACKEND = "redis://redis:6379/1"
+
+CELERY_ACCEPT_CONTENT = ["json"]
+
+CELERY_TASK_SERIALIZER = "json"
+
+CELERY_RESULT_SERIALIZER = "json"
+
+CELERY_TIMEZONE = "Africa/Addis_Ababa"
+
+# Email Configuration
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+DEFAULT_FROM_EMAIL = "noreply@ecommerce.com"

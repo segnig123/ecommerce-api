@@ -23,6 +23,7 @@ from .docs import (
     order_detail_docs,
     order_status_update_docs,
 )
+from .tasks import send_order_confirmation_email
 
 @checkout_docs
 class CheckoutView(APIView):
@@ -128,6 +129,11 @@ class CheckoutView(APIView):
             CartItem.objects.filter(
                 cart__user=request.user
             ).delete()
+
+            # Send confirmation email after the transaction commits.
+            transaction.on_commit(
+                lambda: send_order_confirmation_email.delay(order.id)
+            )
 
         return Response(
             OrderSerializer(order).data,
