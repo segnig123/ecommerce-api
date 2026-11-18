@@ -6,6 +6,7 @@ from rest_framework import status
 
 from .models import Product, Category
 
+from django.core.cache import cache
 
 User = get_user_model()
 
@@ -13,6 +14,7 @@ User = get_user_model()
 class ProductViewTests(APITestCase):
 
     def setUp(self):
+        cache.clear()
         # Create users with unique email addresses
         self.staff_user = User.objects.create_user(
             username="admin",
