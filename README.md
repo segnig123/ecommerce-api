@@ -1,10 +1,10 @@
 # 🛒 E-Commerce REST API
 
-A production-deployed RESTful e-commerce backend built with **Django REST Framework** and **PostgreSQL**.
+A deployed RESTful e-commerce backend built with **Django REST Framework** and **PostgreSQL**.
 
 The API provides a backend system for user management, product catalogs, shopping carts, order processing, and online payments through Stripe.
 
-**Live API:** https://ecommerce-api-demo-mgj3.onrender.com
+**Live API:** [https://ecommerce-api-demo-mgj3.onrender.com](https://ecommerce-api-demo-mgj3.onrender.com)
 
 **API Documentation:**
 - [Swagger UI](https://ecommerce-api-demo-mgj3.onrender.com/api/docs/)
@@ -14,7 +14,7 @@ The API provides a backend system for user management, product catalogs, shoppin
 ---
 
 ## 📸 API Documentation Preview
-   
+
 Explore the API through its interactive documentation.
 
 ### Swagger API Documentation
@@ -25,6 +25,7 @@ Explore the API through its interactive documentation.
 
 ![Products API](screenshots/products-api.png)
 
+---
 
 ## ✨ Features
 
@@ -44,7 +45,7 @@ Explore the API through its interactive documentation.
 - Interactive API documentation
 - Docker configuration
 - GitHub Actions CI/CD
-- Production deployment
+- Live deployment
 
 ---
 
@@ -278,7 +279,7 @@ pip install -r requirements.txt
 
 Create a `.env` file in the project root.
 
-Configure the required settings for:
+Configure the required settings for your local environment:
 
 ```env
 SECRET_KEY=your_secret_key
@@ -299,7 +300,7 @@ STRIPE_SECRET_KEY=your_stripe_secret_key
 STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 ```
 
-Configure any additional environment variables required by your local settings.
+Configure any additional environment variables required by your Django settings.
 
 **Never commit your `.env` file or secret credentials to GitHub.**
 
@@ -362,7 +363,7 @@ compose.yaml
 .env.docker
 ```
 
-Start the configured services with:
+Start the configured services:
 
 ```bash
 docker compose up --build
@@ -380,7 +381,10 @@ docker compose down
 
 GitHub Actions is used to automate project checks.
 
-The workflow includes automated Django checks and migration validation.
+The configured workflow includes:
+
+- Automated Django system checks
+- Migration validation
 
 The project uses Git and GitHub for version control and collaborative development practices.
 
@@ -398,11 +402,11 @@ The application is deployed using a free-tier hosting architecture.
 | Source control | GitHub |
 | CI/CD | GitHub Actions |
 
-The production deployment uses environment variables for sensitive configuration.
+The deployment uses environment variables for sensitive configuration.
 
-The application also uses Gunicorn and WhiteNoise for production serving and static file handling.
+The application also uses Gunicorn and WhiteNoise for application serving and static file handling.
 
-**Live application:** https://ecommerce-api-demo-mgj3.onrender.com
+**Live application:** [https://ecommerce-api-demo-mgj3.onrender.com](https://ecommerce-api-demo-mgj3.onrender.com)
 
 ---
 
@@ -420,7 +424,7 @@ The application also uses Gunicorn and WhiteNoise for production serving and sta
 | Automated Testing | Implemented |
 | Docker Configuration | Completed |
 | CI/CD | Implemented |
-| Production Deployment | Completed |
+| Deployment | Completed |
 
 ---
 
@@ -430,8 +434,8 @@ The application also uses Gunicorn and WhiteNoise for production serving and sta
 - JWT authentication
 - Permission-based access control
 - Stripe webhook signature verification
-- Secure production cookie settings
 - HTTPS deployment
+- Production security configuration
 
 ---
 
@@ -442,9 +446,3 @@ The application also uses Gunicorn and WhiteNoise for production serving and sta
 Backend Developer | Python & Django REST Framework
 
 GitHub: [@segnig123](https://github.com/segnig123)
-
----
-
-## 📄 License
-
-This project is available for educational and portfolio purposes.
