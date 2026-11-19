@@ -1,36 +1,78 @@
-# E-commerce REST API
+# 🛒 E-Commerce REST API
 
-A backend e-commerce application built with **Django REST Framework** and **PostgreSQL**. The project provides a RESTful API for managing users, products, shopping carts, orders, and payments.
+A production-deployed RESTful e-commerce backend built with **Django REST Framework** and **PostgreSQL**.
 
-## Technologies
+The API provides a backend system for user management, product catalogs, shopping carts, order processing, and online payments through Stripe.
 
-- Python
-- Django
-- Django REST Framework
-- PostgreSQL
-- JWT Authentication
-- Stripe API
-- Git and GitHub
+**Live API:** https://ecommerce-api-demo-mgj3.onrender.com
 
-## Core Features
+**API Documentation:**
+- [Swagger UI](https://ecommerce-api-demo-mgj3.onrender.com/api/docs/)
+- [ReDoc](https://ecommerce-api-demo-mgj3.onrender.com/api/redoc/)
+- [OpenAPI Schema](https://ecommerce-api-demo-mgj3.onrender.com/api/schema/)
 
-- User registration and authentication
-- JWT-based authentication
-- Custom user model
+---
+
+## 📸 API Documentation Preview
+   
+Explore the API through its interactive documentation.
+
+### Swagger API Documentation
+
+![Swagger Documentation](screenshots/swagger-overview.png)
+
+### Products API Response
+
+![Products API](screenshots/products-api.png)
+
+
+## ✨ Features
+
+- Custom user model and user registration
+- JWT authentication and token refresh
 - Product and category management
 - Shopping cart management
 - Order creation and management
-- Payment integration using Stripe Checkout
-- Stripe webhook integration
+- Stripe Checkout integration
+- Stripe webhook processing
+- Role-based permissions and object ownership
 - Product filtering, searching, and ordering
 - API pagination
-- Role-based permissions
-- API documentation with Swagger and ReDoc
+- Redis caching
+- Celery background task configuration
 - Automated testing
+- Interactive API documentation
+- Docker configuration
+- GitHub Actions CI/CD
+- Production deployment
 
-## Project Structure
+---
 
-The application is organized into independent Django applications, each responsible for a specific part of the system.
+## 🛠️ Technologies
+
+| Technology | Purpose |
+|---|---|
+| Python | Programming language |
+| Django | Backend framework |
+| Django REST Framework | REST API development |
+| PostgreSQL | Relational database |
+| Redis | Caching and task broker |
+| Celery | Background task processing |
+| Simple JWT | Authentication |
+| Stripe | Payment processing |
+| drf-spectacular | OpenAPI documentation |
+| Docker | Containerization |
+| Git & GitHub | Version control |
+| GitHub Actions | CI/CD |
+| Render | Application hosting |
+| Neon | Managed PostgreSQL |
+| Upstash | Managed Redis |
+
+---
+
+## 🏗️ Project Architecture
+
+The application is divided into independent Django applications, each responsible for a specific business domain.
 
 ```text
 ecommerce_api/
@@ -39,39 +81,31 @@ ecommerce_api/
 ├── products/       # Products and categories
 ├── carts/          # Shopping cart functionality
 ├── orders/         # Order management
-├── payments/       # Payment processing and Stripe integration
+├── payments/       # Stripe payment integration
 │
 ├── config/         # Project configuration
+├── screenshots/    # README screenshots
+│
+├── compose.yaml
+├── build.sh
+├── requirements.txt
 ├── manage.py
 └── README.md
 ```
 
-## Development Status
+---
 
-The core backend applications and their integration are complete. The project has passed the full automated test suite.
+## 📦 Application Modules
 
-| Application | Status |
-|---|---|
-| Project Setup | Completed |
-| Accounts | Completed |
-| Products | Completed |
-| Carts | Completed |
-| Orders | Completed |
-| Payments | Completed |
-| Final Integration | Completed |
-| Deployment | Planned |
-
-## Completed Work
-
-### Accounts
+### 1. Accounts
 
 - Custom user model
 - User registration
 - JWT authentication
 - Login and token refresh
-- Authentication and permission testing
+- Authentication and permission handling
 
-### Products
+### 2. Products
 
 - Product and category models
 - Serializers and validation
@@ -79,10 +113,8 @@ The core backend applications and their integration are complete. The project ha
 - Staff-based permissions
 - Filtering, searching, and ordering
 - Pagination
-- Automated tests
-- Swagger API documentation
 
-### Carts
+### 3. Carts
 
 - Shopping cart and cart item models
 - Add products to cart
@@ -91,9 +123,8 @@ The core backend applications and their integration are complete. The project ha
 - Remove cart items
 - Calculate item subtotals and cart totals
 - Serializer validation
-- Automated tests
 
-### Orders
+### 4. Orders
 
 - Order and order item models
 - Create orders from shopping carts
@@ -102,11 +133,10 @@ The core backend applications and their integration are complete. The project ha
 - Order status management
 - Customer ownership permissions
 - Order validation
-- Automated tests
 
-### Payments
+### 5. Payments
 
-- Payment model and payment status management
+- Payment model and status management
 - Stripe Checkout integration
 - Secure checkout session creation
 - Stripe webhook signature verification
@@ -114,21 +144,35 @@ The core backend applications and their integration are complete. The project ha
 - Failed and expired payment handling
 - Automatic order confirmation after successful payment
 - Webhook event idempotency using Stripe event IDs
-- Automated payment and webhook tests
 
-## API Documentation
+---
 
-Interactive API documentation is provided using **drf-spectacular**:
+## 🔐 Authentication
 
-- Swagger UI
-- ReDoc
-- OpenAPI schema
+The API uses **JSON Web Token (JWT)** authentication through Simple JWT.
 
-The documentation describes available API endpoints, request formats, responses, and authentication requirements.
+Protected endpoints require an access token.
 
-## Payment Integration
+Include the token in the request header:
 
-The project uses Stripe Checkout for payment processing.
+```http
+Authorization: Bearer <your_access_token>
+```
+
+Authentication includes:
+
+- User registration
+- Login
+- Access token generation
+- Token refresh
+- Authenticated API access
+- Permission-based access control
+
+---
+
+## 💳 Payment Integration
+
+Stripe Checkout is used to process online payments.
 
 ### Payment Endpoints
 
@@ -137,9 +181,7 @@ The project uses Stripe Checkout for payment processing.
 | POST | `/api/payments/` | Create a payment and Stripe Checkout session |
 | POST | `/api/payments/webhook/` | Receive Stripe webhook events |
 
-Customers create payments for their orders and are redirected to Stripe Checkout to complete payment.
-
-The webhook endpoint handles:
+Supported webhook events:
 
 - `checkout.session.completed`
 - `checkout.session.expired`
@@ -147,22 +189,151 @@ The webhook endpoint handles:
 
 Webhook signatures are verified, and processed event IDs are stored to prevent duplicate processing.
 
-### Environment Configuration
+---
 
-The following environment variables are required:
+## 📚 API Documentation
 
-```env
-STRIPE_SECRET_KEY=your_stripe_secret_key
-STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
-STRIPE_SUCCESS_URL=http://localhost:8000/payment/success/
-STRIPE_CANCEL_URL=http://localhost:8000/payment/cancel/
+API documentation is generated using **drf-spectacular** and the OpenAPI specification.
+
+| Documentation | Endpoint |
+|---|---|
+| Swagger UI | `/api/docs/` |
+| ReDoc | `/api/redoc/` |
+| OpenAPI Schema | `/api/schema/` |
+
+The documentation provides:
+
+- Available API endpoints
+- HTTP methods
+- Request parameters and body formats
+- Response schemas
+- Authentication requirements
+- Interactive API testing through Swagger UI
+
+---
+
+## 🗄️ Database
+
+PostgreSQL is used as the primary relational database.
+
+The project uses Django ORM for database operations and migrations.
+
+The main application domains include:
+
+- Users
+- Products
+- Categories
+- Shopping carts
+- Cart items
+- Orders
+- Order items
+- Payments
+
+---
+
+## ⚙️ Local Installation
+
+### Prerequisites
+
+- Python 3.14+
+- PostgreSQL
+- Redis
+- Git
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/segnig123/ecommerce-api.git
+
+cd ecommerce-api
 ```
 
-Never commit secret keys or your `.env` file to GitHub.
+### 2. Create a virtual environment
 
-## Automated Testing
+```bash
+python -m venv .venv
+```
 
-Automated tests are implemented across the applications to verify:
+Activate it:
+
+**Windows PowerShell**
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+**Linux/macOS**
+
+```bash
+source .venv/bin/activate
+```
+
+### 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configure environment variables
+
+Create a `.env` file in the project root.
+
+Configure the required settings for:
+
+```env
+SECRET_KEY=your_secret_key
+DEBUG=True
+
+DB_NAME=your_database
+DB_USER=your_database_user
+DB_PASSWORD=your_database_password
+DB_HOST=localhost
+DB_PORT=5432
+
+REDIS_CACHE_URL=your_redis_url
+
+CELERY_BROKER_URL=your_redis_url
+CELERY_RESULT_BACKEND=your_redis_url
+
+STRIPE_SECRET_KEY=your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+```
+
+Configure any additional environment variables required by your local settings.
+
+**Never commit your `.env` file or secret credentials to GitHub.**
+
+### 5. Apply database migrations
+
+```bash
+python manage.py migrate
+```
+
+### 6. Create a superuser
+
+```bash
+python manage.py createsuperuser
+```
+
+### 7. Start the development server
+
+```bash
+python manage.py runserver
+```
+
+The API will be available at:
+
+```text
+http://127.0.0.1:8000/
+```
+
+---
+
+## 🧪 Automated Testing
+
+Automated tests cover the main application components.
+
+Testing includes:
 
 - Model behavior and database constraints
 - Serializer validation
@@ -172,18 +343,108 @@ Automated tests are implemented across the applications to verify:
 - Payment processing
 - Stripe webhook handling
 
-Run all project tests using:
+Run the test suite:
 
 ```bash
 python manage.py test
 ```
 
-## Development
+---
 
-The core backend development is complete. The next stages include final project improvements, deployment preparation, and production deployment.
+## 🐳 Docker
 
-## Version Control
+Docker configuration is included to support containerized development.
 
-Git and GitHub are used for version control and feature-based development.
+The project includes:
 
-Each major application is developed in its own feature branch, tested, and merged into the main branch after completion.
+```text
+compose.yaml
+.env.docker
+```
+
+Start the configured services with:
+
+```bash
+docker compose up --build
+```
+
+Stop the services:
+
+```bash
+docker compose down
+```
+
+---
+
+## 🔄 CI/CD
+
+GitHub Actions is used to automate project checks.
+
+The workflow includes automated Django checks and migration validation.
+
+The project uses Git and GitHub for version control and collaborative development practices.
+
+---
+
+## ☁️ Deployment
+
+The application is deployed using a free-tier hosting architecture.
+
+| Component | Service |
+|---|---|
+| Web application | Render |
+| PostgreSQL database | Neon |
+| Redis | Upstash |
+| Source control | GitHub |
+| CI/CD | GitHub Actions |
+
+The production deployment uses environment variables for sensitive configuration.
+
+The application also uses Gunicorn and WhiteNoise for production serving and static file handling.
+
+**Live application:** https://ecommerce-api-demo-mgj3.onrender.com
+
+---
+
+## 🚀 Development Progress
+
+| Component | Status |
+|---|---|
+| Project Setup | Completed |
+| Accounts | Completed |
+| Products | Completed |
+| Carts | Completed |
+| Orders | Completed |
+| Payments | Completed |
+| API Documentation | Completed |
+| Automated Testing | Implemented |
+| Docker Configuration | Completed |
+| CI/CD | Implemented |
+| Production Deployment | Completed |
+
+---
+
+## 🔒 Security
+
+- Environment-based secret management
+- JWT authentication
+- Permission-based access control
+- Stripe webhook signature verification
+- Secure production cookie settings
+- HTTPS deployment
+
+---
+
+## 👨‍💻 Author
+
+**Segni**
+
+Backend Developer | Python & Django REST Framework
+
+GitHub: [@segnig123](https://github.com/segnig123)
+
+---
+
+## 📄 License
+
+This project is available for educational and portfolio purposes.
